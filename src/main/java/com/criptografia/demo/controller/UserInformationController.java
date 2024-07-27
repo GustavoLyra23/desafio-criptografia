@@ -2,6 +2,7 @@ package com.criptografia.demo.controller;
 
 import com.criptografia.demo.dto.UserInformationDto;
 import com.criptografia.demo.services.UserInformationService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class UserInformationController {
 
 
     @PostMapping
-    public ResponseEntity<UserInformationDto> saveUserInformation(@RequestBody UserInformationDto userInformation) {
+    public ResponseEntity<UserInformationDto> saveUserInformation(@Valid @RequestBody UserInformationDto userInformation) {
         UserInformationDto dto = userInformationService.insert(userInformation);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.getId()).toUri();
         return ResponseEntity.created(uri).body(dto);
@@ -38,7 +39,7 @@ public class UserInformationController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<UserInformationDto> updateUserInformation(@PathVariable Long id, @RequestBody UserInformationDto userInformation) {
+    public ResponseEntity<UserInformationDto> updateUserInformation(@PathVariable Long id, @Valid @RequestBody UserInformationDto userInformation) {
         UserInformationDto dto = userInformationService.update(id, userInformation);
         return ResponseEntity.ok(dto);
     }
