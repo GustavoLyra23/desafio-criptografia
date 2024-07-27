@@ -4,6 +4,8 @@ import com.criptografia.demo.dto.UserInformationDto;
 import com.criptografia.demo.services.UserInformationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -16,6 +18,12 @@ public class UserInformationController {
 
     @Autowired
     private UserInformationService userInformationService;
+
+    @GetMapping
+    public ResponseEntity<Page<UserInformationDto>> findAll(Pageable pageable) {
+        Page<UserInformationDto> dtos = userInformationService.findAll(pageable);
+        return ResponseEntity.ok(dtos);
+    }
 
 
     @PostMapping

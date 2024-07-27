@@ -8,6 +8,8 @@ import com.criptografia.demo.services.exception.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,12 +72,22 @@ public class UserInformationService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public Page<UserInformationDto> findAll(Pageable pageable) {
+        Page<UserInformation> userInformations = userInformationRepository.findAll(pageable);
+        return userInformations.map(x -> {
+            x.setUserDocument(securityService.decrypt(x.getUserDocument()));
+            x.setCreditCardToken(securityService.decrypt(x.getCreditCardToken()));
+            return new UserInformationDto(x);
+        });
+
+    }
+
 
     private void dtoToEntity(UserInformationDto userInformationDto, UserInformation userInformation) {
         userInformation.setUserDocument(userInformationDto.getUserDocument());
         userInformation.setCreditCardToken(userInformationDto.getCreditCardToken());
         userInformation.setUserValue(userInformationDto.getValue());
     }
-
 
 }
