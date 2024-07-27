@@ -3,9 +3,11 @@ package com.criptografia.demo.services;
 import com.criptografia.demo.dto.UserInformationDto;
 import com.criptografia.demo.entities.UserInformation;
 import com.criptografia.demo.repositories.UserInformationRepository;
+import com.criptografia.demo.services.exception.DatabaseException;
 import com.criptografia.demo.services.exception.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,11 +46,13 @@ public class UserInformationService {
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id) {
+        if (!userInformationRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Product not found");
+        }
         try {
-            userInformationRepository.getReferenceById(id);
             userInformationRepository.deleteById(id);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Resource not found");
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Referential integrity error");
         }
 
     }
