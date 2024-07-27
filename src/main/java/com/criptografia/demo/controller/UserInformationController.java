@@ -31,4 +31,10 @@ public class UserInformationController {
         return ResponseEntity.ok(userInformationDto);
     }
 
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Void> deleteUserInformation(@PathVariable Long id) {
+        userInformationService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
