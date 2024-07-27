@@ -4,6 +4,7 @@ import com.criptografia.demo.dto.UserInformationDto;
 import com.criptografia.demo.entities.UserInformation;
 import com.criptografia.demo.repositories.UserInformationRepository;
 import com.criptografia.demo.services.exception.ResourceNotFoundException;
+import org.jasypt.util.text.BasicTextEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,16 +17,15 @@ public class UserInformationService {
     private UserInformationRepository userInformationRepository;
 
     @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
+    private BasicTextEncryptor basicTextEncryptor;
 
     @Transactional
     public UserInformationDto insert(UserInformationDto userInformationDto) {
         UserInformation userInformation = new UserInformation();
         dtoToEntity(userInformationDto, userInformation);
 
-        userInformation.setUserDocument(bCryptPasswordEncoder.encode(userInformationDto.getUserDocument()));
-        userInformation.setCreditCardToken(bCryptPasswordEncoder.encode(userInformationDto.getCreditCardToken()));
+        userInformation.setUserDocument(basicTextEncryptor.encrypt(userInformationDto.getUserDocument()));
+        userInformation.setCreditCardToken(basicTextEncryptor.encrypt(userInformationDto.getCreditCardToken()));
 
         userInformation = userInformationRepository.save(userInformation);
         return new UserInformationDto(userInformation);
@@ -35,6 +35,10 @@ public class UserInformationService {
     public UserInformationDto findById(Long id) {
         UserInformation userInformation = userInformationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found"));
+
+        userInformation.setUserDocument(basicTextEncryptor.decrypt(userInformation.getUserDocument()));
+        userInformation.setCreditCardToken(basicTextEncryptor.decrypt(userInformation.getCreditCardToken()));
+
         return new UserInformationDto(userInformation);
     }
 
