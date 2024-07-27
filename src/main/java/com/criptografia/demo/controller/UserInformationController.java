@@ -37,4 +37,9 @@ public class UserInformationController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<UserInformationDto> updateUserInformation(@PathVariable Long id, @RequestBody UserInformationDto userInformation) {
+        UserInformationDto dto = userInformationService.update(id, userInformation);
+        return ResponseEntity.ok(dto);
+    }
 }

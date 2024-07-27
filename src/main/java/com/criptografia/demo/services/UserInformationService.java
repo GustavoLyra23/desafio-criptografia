@@ -47,19 +47,31 @@ public class UserInformationService {
     @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id) {
         if (!userInformationRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Product not found");
+            throw new ResourceNotFoundException("Entity not found");
         }
         try {
             userInformationRepository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Referential integrity error");
         }
+    }
 
+    @Transactional()
+    public UserInformationDto update(Long id, UserInformationDto userInformationDto) {
+        try {
+            UserInformation userInformation = userInformationRepository.getReferenceById(id);
+            dtoToEntity(userInformationDto, userInformation);
+            userInformation.setUserDocument(securityService.encrypt(userInformationDto.getUserDocument()));
+            userInformation.setCreditCardToken(securityService.encrypt(userInformation.getCreditCardToken()));
+            userInformation = userInformationRepository.save(userInformation);
+            return new UserInformationDto(userInformation);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Entity not found");
+        }
     }
 
 
     private void dtoToEntity(UserInformationDto userInformationDto, UserInformation userInformation) {
-        userInformation.setId(userInformationDto.getId());
         userInformation.setUserDocument(userInformationDto.getUserDocument());
         userInformation.setCreditCardToken(userInformationDto.getCreditCardToken());
         userInformation.setUserValue(userInformationDto.getValue());
